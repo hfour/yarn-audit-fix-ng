@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import * as lf from "@yarnpkg/lockfile";
 import * as process from "process";
 import * as fs from "fs";
@@ -14,6 +15,7 @@ if (data.type != "success") {
 
 let audit = cp.spawnSync("yarn audit --json", {
   shell: true,
+  maxBuffer: 128 * 1024 * 1024,
 });
 
 if (audit.error) {
@@ -31,13 +33,21 @@ type AuditEntry = {
   };
 };
 
+function attempt<T>(f: () => T): T | null {
+  try {
+    return f();
+  } catch {
+    return null;
+  }
+}
+
 let auditDict = keyBy(
   audit.stdout
     .toString()
     .split("\n")
-    .map((item) => JSON.parse(item) as AuditEntry)
+    .map((item) => attempt(() => JSON.parse(item)) as AuditEntry)
     .map((item) => item?.data?.advisory)
-    .filter((item) => item)
+    .filter((item) => item != null)
     .map((item) => ({
       module_name: item.module_name,
       vulnerable_versions: item.vulnerable_versions,
@@ -60,19 +70,32 @@ type LockfileObject = {
 let lockfile = data.object as LockfileObject;
 
 for (let depSpec of Object.keys(lockfile)) {
-  let pkgName = depSpec.split("@")[0];
+  // console.log("Testing depspec", depSpec);
+  let [pkgName, desiredRange] = depSpec.split("@");
   let pkgAudit = auditDict[pkgName];
   if (!pkgAudit) continue;
   let pkgSpec = lockfile[depSpec];
   if (sv.satisfies(pkgSpec.version, pkgAudit.vulnerable_versions)) {
-    let fix = sv.minVersion(pkgAudit.patched_versions);
+    let fix = sv.minVersion(pkgAudit.patched_versions)?.format();
     if (fix == null) {
-      console.error("minVersion broken on", pkgAudit.patched_versions);
+      console.error(
+        "Can't find satisfactory version for",
+        pkgAudit.module_name,
+        pkgAudit.patched_versions
+      );
+      continue;
     }
-    if (sv.satisfies(fix!.format(), depSpec)) {
-      pkgSpec.version = fix!.format();
+    if (sv.satisfies(fix, desiredRange)) {
+      pkgSpec.version = fix;
     } else {
-      console.log("Cant find minVersion of", pkgAudit.patched_versions, "that satisfies", depSpec);
+      console.log(
+        "Cant find patched version that satisfies",
+        depSpec,
+        "in",
+        pkgAudit.patched_versions
+      );
     }
   }
 }
+
+fs.writeFileSync("./yarn.lock", lf.stringify(lockfile));

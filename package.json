@@ -1,9 +1,12 @@
 {
-  "name": "yarn-audit-fix-2",
+  "name": "yarn-audit-fix-ng",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Gorgi Kosev",
   "license": "MIT",
+  "bin": {
+    "yarn-audit-fix-ng": "./dist/index.js"
+  },
   "devDependencies": {
     "@types/lodash": "^4.14.169",
     "@types/node": "^15.3.0",
