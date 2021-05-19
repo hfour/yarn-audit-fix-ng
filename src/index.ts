@@ -6,23 +6,6 @@ import * as cp from "child_process";
 import { keyBy } from "lodash";
 import * as sv from "semver";
 
-let data = lf.parse(fs.readFileSync("./yarn.lock", "utf-8"));
-
-if (data.type != "success") {
-  console.error("Merge conflict in yarn lockfile, aborting");
-  process.exit(1);
-}
-
-let audit = cp.spawnSync("yarn audit --json", {
-  shell: true,
-  maxBuffer: 128 * 1024 * 1024,
-});
-
-if (audit.error) {
-  console.error("Error retreiving audit: ", audit.error.message);
-  process.exit(1);
-}
-
 type AuditEntry = {
   data: {
     advisory: {
@@ -32,6 +15,33 @@ type AuditEntry = {
     };
   };
 };
+
+type LockfileObject = {
+  [versionInfo: string]: {
+    version: string;
+    resolved: string;
+    integrity: string;
+    dependencies: string[];
+  };
+};
+
+let data = lf.parse(fs.readFileSync("./yarn.lock", "utf-8"));
+
+if (data.type != "success") {
+  console.error("Merge conflict in yarn lockfile, aborting");
+  process.exit(1);
+}
+
+console.log("Downloading audit...");
+let audit = cp.spawnSync("yarn audit --json", {
+  shell: true,
+  maxBuffer: 128 * 1024 * 1024,
+});
+
+if (audit.error) {
+  console.error("Error retreiving audit: ", audit.error.message);
+  process.exit(1);
+}
 
 function attempt<T>(f: () => T): T | null {
   try {
@@ -61,13 +71,9 @@ if (Object.keys(auditDict).length < 1) {
   process.exit(0);
 }
 
-type LockfileObject = {
-  [versionInfo: string]: {
-    version: string;
-  };
-};
-
 let lockfile = data.object as LockfileObject;
+
+let upgradeVersions = [];
 
 for (let depSpec of Object.keys(lockfile)) {
   // console.log("Testing depspec", depSpec);
@@ -85,17 +91,24 @@ for (let depSpec of Object.keys(lockfile)) {
       );
       continue;
     }
-    if (sv.satisfies(fix, desiredRange)) {
-      pkgSpec.version = fix;
-    } else {
-      console.log(
+    if (!sv.satisfies(fix, desiredRange)) {
+      console.error(
         "Cant find patched version that satisfies",
         depSpec,
         "in",
         pkgAudit.patched_versions
       );
+      continue;
     }
+    upgradeVersions.push(`${pkgName}@${fix}`);
+    pkgSpec.version = fix;
+    pkgSpec.dependencies = [];
+    pkgSpec.integrity = "";
+    pkgSpec.resolved = "";
   }
 }
 
 fs.writeFileSync("./yarn.lock", lf.stringify(lockfile));
+
+console.log("Installing upgrades:", upgradeVersions.join(", "));
+cp.spawnSync("yarn install", { shell: true });
