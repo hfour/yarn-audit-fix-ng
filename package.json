@@ -1,11 +1,19 @@
 {
   "name": "yarn-audit-fix-ng",
   "version": "1.0.1",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "author": "Gorgi Kosev",
   "license": "MIT",
   "bin": {
-    "yarn-audit-fix-ng": "./dist/index.js"
+    "yarn-audit-fix-ng": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@yarnpkg/lockfile": "^1.1.0",
+    "lodash": "^4.17.21",
+    "semver": "^7.3.5"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.169",
@@ -15,10 +23,5 @@
     "esbuild-runner": "^1.3.2",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
-  },
-  "dependencies": {
-    "@yarnpkg/lockfile": "^1.1.0",
-    "lodash": "^4.17.21",
-    "semver": "^7.3.5"
   }
 }
