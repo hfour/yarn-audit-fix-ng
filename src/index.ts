@@ -34,7 +34,7 @@ export const run = (argv: string[] = []): void => {
   }
 
   console.log("Downloading audit...");
-  let audit = cp.spawnSync(`yarn audit --json ${argv.join(' ')}`, {
+  let audit = cp.spawnSync(`yarn audit --json ${argv.join(" ")}`, {
     shell: true,
     maxBuffer: 128 * 1024 * 1024,
   });
