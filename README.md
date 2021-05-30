@@ -1,9 +1,8 @@
 # yarn-audit-fixer-ng
 
-Usage
-
+Usage:
+```shell
+npx yarn-audit-fix-ng [--verbose, --level=info|low|moderate|high|critical, --groups=dependencies|devDependencies]
 ```
-npx yarn-audit-fix-ng
-```
 
-Fixes your audit issues - the ones that can be automatically fixed
+Fixes your audit issues — the ones that can be automatically fixed
