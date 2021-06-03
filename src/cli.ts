@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
-import { run } from "./index";
+import { IFixOptions, run } from "./index";
+import { parse } from "./argv";
 
-run(process.argv.slice(2));
+run(parse(process.argv) as IFixOptions);

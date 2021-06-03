@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 import * as lf from "@yarnpkg/lockfile";
 import * as process from "process";
+import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
 import { keyBy } from "lodash";
 import * as sv from "semver";
+import { unparse } from "./argv";
 
-type AuditEntry = {
+export type AuditEntry = {
   data: {
     advisory: {
       module_name: string;
@@ -16,7 +18,7 @@ type AuditEntry = {
   };
 };
 
-type LockfileObject = {
+export type LockfileObject = {
   [versionInfo: string]: {
     version: string;
     resolved: string;
@@ -25,8 +27,15 @@ type LockfileObject = {
   };
 };
 
-export const run = (argv: string[] = []): void => {
-  let data = lf.parse(fs.readFileSync("./yarn.lock", "utf-8"));
+export type IFixOptions = {
+  cwd?: string;
+};
+
+export const run = (opts: IFixOptions): void => {
+  const { cwd = process.cwd() } = opts;
+  const yarnlockPath = path.resolve(cwd, "yarn.lock");
+  const yarnAuditCmd = unparse(opts, { command: "yarn audit" }).join(" ");
+  let data = lf.parse(fs.readFileSync(yarnlockPath, "utf-8"));
 
   if (data.type != "success") {
     console.error("Merge conflict in yarn lockfile, aborting");
@@ -34,13 +43,13 @@ export const run = (argv: string[] = []): void => {
   }
 
   console.log("Downloading audit...");
-  let audit = cp.spawnSync(`yarn audit --json ${argv.join(" ")}`, {
+  let audit = cp.spawnSync(yarnAuditCmd, {
     shell: true,
     maxBuffer: 128 * 1024 * 1024,
   });
 
   if (audit.error) {
-    console.error("Error retreiving audit: ", audit.error.message);
+    console.error("Error retrieving audit: ", audit.error.message);
     process.exit(1);
   }
 
@@ -109,7 +118,7 @@ export const run = (argv: string[] = []): void => {
     }
   }
 
-  fs.writeFileSync("./yarn.lock", lf.stringify(lockfile));
+  fs.writeFileSync(yarnlockPath, lf.stringify(lockfile));
 
   console.log("Installing upgrades:", upgradeVersions.join(", "));
   cp.spawnSync("yarn install", { shell: true });

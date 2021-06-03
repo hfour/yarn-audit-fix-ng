@@ -10,10 +10,18 @@
   "scripts": {
     "build": "tsc"
   },
+  "files": [
+    "dist",
+    "custom-typings",
+    "README.md"
+  ],
   "dependencies": {
+    "@types/yargs-parser": "^20.2.0",
     "@yarnpkg/lockfile": "^1.1.0",
     "lodash": "^4.17.21",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "yargs-parser": "^20.2.7",
+    "yargs-unparser": "^2.0.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.169",
@@ -26,6 +34,6 @@
     "typescript": "^4.2.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm_config_yes=true npx prettier --write 'src/**/*.ts'"
+    "pre-push": "npm_config_yes=true npx prettier --write 'src/**/*.ts'"
   }
 }
