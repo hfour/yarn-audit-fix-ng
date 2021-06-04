@@ -34,11 +34,11 @@ export type IFixOptions = {
 export const run = (opts: IFixOptions): void => {
   const { cwd = process.cwd() } = opts;
   const yarnlockPath = path.resolve(cwd, "yarn.lock");
-  const yarnAuditCmd = unparse({...opts, json: true, _: []}, { command: "yarn audit" }).join(" ");
+  const yarnAuditCmd = unparse({ ...opts, json: true, _: [] }, { command: "yarn audit" }).join(" ");
   const spawnOptions = {
     shell: true,
     maxBuffer: 128 * 1024 * 1024,
-  }
+  };
   let data = lf.parse(fs.readFileSync(yarnlockPath, "utf-8"));
 
   if (data.type != "success") {
@@ -48,7 +48,7 @@ export const run = (opts: IFixOptions): void => {
 
   console.log("Downloading audit...");
   let audit = cp.spawnSync(yarnAuditCmd, spawnOptions);
-  fs.writeFileSync(path.resolve(__dirname, '../test/fixtures/audit.json'), JSON.stringify(audit), {encoding: 'utf8'});
+
   if (audit.error) {
     console.error("Error retrieving audit: ", audit.error.message);
     process.exit(1);
