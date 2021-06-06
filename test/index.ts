@@ -27,8 +27,6 @@ jest.mock('child_process', () => ({
 
 import { run } from '../src'
 
-// console.log('audit=', JSON.stringify(audit))
-
 afterAll(() => {
   jest.clearAllMocks()
   fs.emptyDirSync(temp)
