@@ -1,4 +1,4 @@
-# yarn-audit-fixer-ng
+# yarn-audit-fix-ng
 
 Usage:
 ```shell

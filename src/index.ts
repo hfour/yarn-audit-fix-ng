@@ -122,5 +122,5 @@ export const run = (opts: IFixOptions): void => {
   fs.writeFileSync(yarnlockPath, lf.stringify(lockfile));
 
   console.log("Installing upgrades:", upgradeVersions.join(", "));
-  cp.spawnSync(`yarn --update-checksums --cwd ${cwd}`, spawnOptions);
+  cp.spawnSync(`yarn install --update-checksums --cwd ${cwd}`, spawnOptions);
 };

@@ -47,6 +47,6 @@ describe('run', () => {
       .toBe(fs.readFileSync(yarnlockPath, {encoding: 'utf-8'}))
     expect(spawnSync).toHaveBeenCalledTimes(2)
     expect(spawnSync).toHaveBeenCalledWith(`yarn audit --cwd ${temp} --json`, spawnOpts)
-    expect(spawnSync).toHaveBeenCalledWith(`yarn --update-checksums --cwd ${temp}`, spawnOpts)
+    expect(spawnSync).toHaveBeenCalledWith(`yarn install --update-checksums --cwd ${temp}`, spawnOpts)
   })
 })
