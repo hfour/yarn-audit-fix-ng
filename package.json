@@ -42,5 +42,9 @@
   },
   "simple-git-hooks": {
     "pre-push": "npm_config_yes=true npx prettier --write 'src/**/*.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hfour/yarn-audit-fix-ng.git"
   }
 }
