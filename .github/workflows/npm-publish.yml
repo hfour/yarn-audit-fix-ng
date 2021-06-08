@@ -33,6 +33,7 @@ jobs:
         uses: actions/download-artifact@v2
         with: 
           name: artifact-${{ github.run_id }}
+          path: dist
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
