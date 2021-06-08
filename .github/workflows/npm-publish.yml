@@ -42,6 +42,6 @@ jobs:
           path: dist
       - name: Publish with npm
         run: |
-          npm publish --dry-run
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
