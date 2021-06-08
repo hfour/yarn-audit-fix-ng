@@ -30,21 +30,18 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Restore artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: artifact-${{ github.run_id }}
-          path: dist
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
+      - name: Restore artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: artifact-${{ github.run_id }}
+          path: dist
       - name: Publish with npm
         run: |
-          echo Running publish in directory $(pwd)
-          echo Directory contains:
-          ls -la
           npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
