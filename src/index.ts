@@ -4,7 +4,7 @@ import * as process from "process";
 import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
-import { keyBy } from "lodash";
+import { keyBy, pick } from "lodash";
 import * as sv from "semver";
 import { unparse } from "./argv";
 
@@ -29,12 +29,20 @@ export type LockfileObject = {
 
 export type IFixOptions = {
   cwd?: string;
+  force?: boolean;
+  groups?: string | string[];
+  level?: string;
+  verbose?: boolean;
 };
 
 export const run = (opts: IFixOptions): void => {
   const { cwd = process.cwd() } = opts;
   const yarnlockPath = path.resolve(cwd, "yarn.lock");
-  const yarnAuditCmd = unparse({ ...opts, json: true, _: [] }, { command: "yarn audit" }).join(" ");
+  const yarnAuditAllowedOpts = ["cwd", "groups", "level", "verbose"];
+  const yarnAuditCmd = unparse(
+    { ...pick(opts, yarnAuditAllowedOpts), json: true, _: [] },
+    { command: "yarn audit" }
+  ).join(" ");
   const spawnOptions = {
     shell: true,
     maxBuffer: 128 * 1024 * 1024,
@@ -102,7 +110,7 @@ export const run = (opts: IFixOptions): void => {
         );
         continue;
       }
-      if (!sv.satisfies(fix, desiredRange)) {
+      if (!sv.satisfies(fix, desiredRange) && !opts.force) {
         console.error(
           "Cant find patched version that satisfies",
           depSpec,
