@@ -1,6 +1,7 @@
 import * as fs from "fs-extra";
 import path from "path";
 import tempy from "tempy";
+import "jest";
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#using_the_reviver_parameter
 const revive = <T = any>(data: string): T =>
