@@ -29,6 +29,7 @@ export type LockfileObject = {
 
 export type IFixOptions = {
   cwd?: string;
+  dryRun?: boolean;
   force?: boolean;
   groups?: string | string[];
   level?: string;
@@ -127,7 +128,9 @@ export const run = (opts: IFixOptions): void => {
     }
   }
 
-  fs.writeFileSync(yarnlockPath, lf.stringify(lockfile));
+  if (!opts.dryRun) {
+    fs.writeFileSync(yarnlockPath, lf.stringify(lockfile));
+  }
 
   console.log("Installing upgrades:", upgradeVersions.join(", "));
   cp.spawnSync(`yarn install --update-checksums --cwd ${cwd}`, spawnOptions);
