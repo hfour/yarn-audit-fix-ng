@@ -10,6 +10,7 @@ npx yarn-audit-fix-ng [--verbose, --level=info|low|moderate|high|critical, --gro
 | Flag | Description
 |---|---
 | cwd | Process directory, defaults to process.cwd()
+| dry-run | Get an idea of what audit fix will do
 | force | Ignore semver range limitations on patching
 | groups | Limit the audit table to vulnerabilities of the corresponding dependency groups: dependencies, devDependencies, optionalDependencies, peerDependencies
 | level | Limit the audit table to vulnerabilities of the corresponding level and above: info, low, moderate, high, critical
