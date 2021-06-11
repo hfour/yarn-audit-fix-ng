@@ -2,3 +2,4 @@
 /dist
 yarn-error.log
 coverage
+test/fixtures/yarn.lock
